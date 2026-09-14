@@ -192,24 +192,36 @@ const game = {
 },
 
     checkAnswer: function (selectedIndex) {
-        clearInterval(this.timerId);
+    clearInterval(this.timerId);
 
-        const questionIndex =
-            this.usedQuestions[this.usedQuestions.length - 1];
+    const questionIndex =
+        this.usedQuestions[this.usedQuestions.length - 1];
 
-        const question = questions[questionIndex];
+    const question = questions[questionIndex];
 
-        if (selectedIndex === question.correctAnswerIndex) {
-            this.score++;
-            scoreElement.textContent = this.score;
+    const selectedButton = answerButtons[selectedIndex];
 
-            console.log("Correct!");
-        } else {
-            this.lives--;
-            livesElement.textContent = "❤️".repeat(this.lives);
+    if (selectedIndex === question.correctAnswerIndex) {
+        selectedButton.classList.add("answer-correct");
 
-            console.log("Wrong!");
+        this.score++;
+        scoreElement.textContent = this.score;
+    } else {
+        if (selectedButton) {
+            selectedButton.classList.add("answer-wrong");
         }
+
+        this.lives--;
+        livesElement.textContent = "❤️".repeat(this.lives);
+    }
+
+    setTimeout(() => {
+        answerButtons.forEach(function (button) {
+            button.classList.remove(
+                "answer-correct",
+                "answer-wrong"
+            );
+        });
 
         if (this.lives === 0) {
             this.gameOver();
@@ -222,7 +234,8 @@ const game = {
         }
 
         this.loadQuestion();
-    },
+    }, 400);
+},
 
     gameOver: function () {
         gameScreen.classList.add("hidden");

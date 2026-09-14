@@ -105,6 +105,13 @@ button {
 .game-header strong {
     font-size: 20px;
 }
+.answer-correct {
+    background: #1f5f3a;
+}
+
+.answer-wrong {
+    background: #6b2525;
+}
 /* quetion styling here */
 .question-box {
     width: 100%;
@@ -163,6 +170,8 @@ button {
 #end-screen p {
     margin-bottom: 25px;
 }
+
+
 /* the responsive added */
 @media (max-width: 600px) {
     .screen {
