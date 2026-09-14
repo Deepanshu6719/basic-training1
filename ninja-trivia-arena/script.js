@@ -1,3 +1,12 @@
+const questionElement = document.getElementById("question");
+const questionNumberElement = document.getElementById("question-number");
+const answerButtons = document.querySelectorAll(".answer-btn");
+
+const startButton = document.getElementById("start-btn");
+const startScreen = document.getElementById("start-screen");
+const gameScreen = document.getElementById("game-screen");
+
+
 const questions = [
     {
         question: "What does HTML stand for?",
@@ -108,14 +117,42 @@ const game = {
     usedQuestions: [],
 
     start: function () {
-        console.log("Game is started");
-    },
+    startScreen.classList.add("hidden");
+    gameScreen.classList.remove("hidden");
 
-    loadQuestion: function () {
-        console.log("Loading the question...");
-    },
+    this.loadQuestion();
+},
+
+  loadQuestion: function () {
+    if (this.usedQuestions.length === questions.length) {
+        console.log("All questions completed");
+        return;
+    }
+
+    let randomIndex;
+
+    do {
+        randomIndex = Math.floor(Math.random() * questions.length);
+    } while (this.usedQuestions.includes(randomIndex));
+
+    this.usedQuestions.push(randomIndex);
+
+    const question = questions[randomIndex];
+
+    questionElement.textContent = question.question;
+    questionNumberElement.textContent =
+        `Question ${this.usedQuestions.length}`;
+
+    answerButtons.forEach(function (button, index) {
+        button.textContent = question.options[index];
+    });
+},
 
     checkAnswer: function () {
         console.log("Checking the answer...");
     }
 };
+
+startButton.addEventListener("click", function () {
+    game.start();
+});
