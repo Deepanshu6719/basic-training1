@@ -6,6 +6,8 @@ const startButton = document.getElementById("start-btn");
 const startScreen = document.getElementById("start-screen");
 const gameScreen = document.getElementById("game-screen");
 
+const scoreElement = document.getElementById("score");
+const livesElement = document.getElementById("lives");
 
 const questions = [
     {
@@ -155,11 +157,19 @@ const game = {
         const question = questions[questionIndex];
 
         if (selectedIndex === question.correctAnswerIndex) {
+            this.score++;
+            scoreElement.textContent = this.score;
+
             console.log("Correct!");
         } else {
+            this.lives--;
+            livesElement.textContent = "❤️".repeat(this.lives);
+
             console.log("Wrong!");
         }
-    }
+
+        this.loadQuestion();
+    },
 };
 
 startButton.addEventListener("click", function () {
