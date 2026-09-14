@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ninja Trivia Arena</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="game-container">
+
+        // start screen
+        <section id="start-screen" class="screen">
+            <h1>Ninja Trivia Arena</h1>
+
+            <p>
+                Answer the questions correctly and defeat the enemy waves.
+            </p>
+
+            <button id="start-btn">Start Game</button>
+        </section>
+
+
+      // game screen
+        <section id="game-screen" class="screen hidden">
+
+            <div class="game-header">
+                <div>
+                    <span>Score</span>
+                    <strong id="score">0</strong>
+                </div>
+
+                <div>
+                    <span>Lives</span>
+                    <strong id="lives">❤️❤️❤️</strong>
+                </div>
+
+                <div>
+                    <span>Time</span>
+                    <strong id="timer">15</strong>
+                </div>
+            </div>
+
+
+            <div class="question-box">
+                <p id="question-number">Question 1</p>
+
+                <h2 id="question">
+                    Question will appear here
+                </h2>
+            </div>
+
+
+            <div id="answer-buttons" class="answer-buttons">
+
+                <button class="answer-btn">Option 1</button>
+                <button class="answer-btn">Option 2</button>
+                <button class="answer-btn">Option 3</button>
+                <button class="answer-btn">Option 4</button>
+
+            </div>
+
+        </section>
+
+
+        //end screen
+        <section id="end-screen" class="screen hidden">
+
+            <h1 id="end-title">Game Over</h1>
+
+            <p id="end-message">
+                Better luck next time, Ninja!
+            </p>
+
+            <p>
+                Final Score:
+                <strong id="final-score">0</strong>
+            </p>
+
+            <button id="play-again-btn">Play Again</button>
+
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
