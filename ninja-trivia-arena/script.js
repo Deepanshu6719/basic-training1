@@ -117,42 +117,56 @@ const game = {
     usedQuestions: [],
 
     start: function () {
-    startScreen.classList.add("hidden");
-    gameScreen.classList.remove("hidden");
+        startScreen.classList.add("hidden");
+        gameScreen.classList.remove("hidden");
 
-    this.loadQuestion();
-},
+        this.loadQuestion();
+    },
 
-  loadQuestion: function () {
-    if (this.usedQuestions.length === questions.length) {
-        console.log("All questions completed");
-        return;
-    }
+    loadQuestion: function () {
+        if (this.usedQuestions.length === questions.length) {
+            console.log("All questions completed");
+            return;
+        }
 
-    let randomIndex;
+        let randomIndex;
 
-    do {
-        randomIndex = Math.floor(Math.random() * questions.length);
-    } while (this.usedQuestions.includes(randomIndex));
+        do {
+            randomIndex = Math.floor(Math.random() * questions.length);
+        } while (this.usedQuestions.includes(randomIndex));
 
-    this.usedQuestions.push(randomIndex);
+        this.usedQuestions.push(randomIndex);
 
-    const question = questions[randomIndex];
+        const question = questions[randomIndex];
 
-    questionElement.textContent = question.question;
-    questionNumberElement.textContent =
-        `Question ${this.usedQuestions.length}`;
+        questionElement.textContent = question.question;
+        questionNumberElement.textContent =
+            `Question ${this.usedQuestions.length}`;
 
-    answerButtons.forEach(function (button, index) {
-        button.textContent = question.options[index];
-    });
-},
+        answerButtons.forEach(function (button, index) {
+            button.textContent = question.options[index];
+        });
+    },
 
-    checkAnswer: function () {
-        console.log("Checking the answer...");
+    checkAnswer: function (selectedIndex) {
+        const questionIndex =
+            this.usedQuestions[this.usedQuestions.length - 1];
+
+        const question = questions[questionIndex];
+
+        if (selectedIndex === question.correctAnswerIndex) {
+            console.log("Correct!");
+        } else {
+            console.log("Wrong!");
+        }
     }
 };
 
 startButton.addEventListener("click", function () {
     game.start();
+});
+answerButtons.forEach(function (button, index) {
+    button.addEventListener("click", function () {
+        game.checkAnswer(index);
+    });
 });
