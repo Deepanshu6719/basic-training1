@@ -16,6 +16,10 @@ const finalScoreElement = document.getElementById("final-score");
 
 const timerElement = document.getElementById("timer");
 
+const playAgainButton = document.getElementById("play-again-btn");
+
+const timerProgress = document.getElementById("timer-progress");
+
 const questions = [
     {
         question: "What does HTML stand for?",
@@ -134,108 +138,111 @@ const game = {
         this.loadQuestion();
     },
 
-   loadQuestion: function () {
-    try {
-        if (!questions.length) {
-            throw new Error("No questions available.");
+    loadQuestion: function () {
+        try {
+            if (!questions.length) {
+                throw new Error("No questions available.");
+            }
+
+            if (this.usedQuestions.length === questions.length) {
+                this.win();
+                return;
+            }
+
+            let randomIndex;
+
+            do {
+                randomIndex = Math.floor(Math.random() * questions.length);
+            } while (this.usedQuestions.includes(randomIndex));
+
+            const question = questions[randomIndex];
+
+            if (
+                !question.question ||
+                !Array.isArray(question.options) ||
+                question.options.length !== 4 ||
+                typeof question.correctAnswerIndex !== "number"
+            ) {
+                throw new Error("Invalid question data.");
+            }
+
+            this.usedQuestions.push(randomIndex);
+
+            questionElement.textContent = question.question;
+
+            questionNumberElement.textContent =
+                `Question ${this.usedQuestions.length}`;
+
+            answerButtons.forEach(function (button, index) {
+                button.textContent = question.options[index];
+            });
+
+            this.startTimer();
+
+        } catch (error) {
+            console.error(error);
+
+            questionElement.textContent =
+                "Sorry, we couldn't load the question.";
+
+            questionNumberElement.textContent = "Error";
+
+            answerButtons.forEach(function (button) {
+                button.disabled = true;
+            });
+
+            clearInterval(this.timerId);
         }
+    },
 
-        if (this.usedQuestions.length === questions.length) {
-            this.win();
-            return;
-        }
+    checkAnswer: function (selectedIndex) {
+        clearInterval(this.timerId);
 
-        let randomIndex;
+        const questionIndex =
+            this.usedQuestions[this.usedQuestions.length - 1];
 
-        do {
-            randomIndex = Math.floor(Math.random() * questions.length);
-        } while (this.usedQuestions.includes(randomIndex));
+        const question = questions[questionIndex];
 
-        const question = questions[randomIndex];
-
-        if (
-            !question.question ||
-            !Array.isArray(question.options) ||
-            question.options.length !== 4 ||
-            typeof question.correctAnswerIndex !== "number"
-        ) {
-            throw new Error("Invalid question data.");
-        }
-
-        this.usedQuestions.push(randomIndex);
-
-        questionElement.textContent = question.question;
-
-        questionNumberElement.textContent =
-            `Question ${this.usedQuestions.length}`;
-
-        answerButtons.forEach(function (button, index) {
-            button.textContent = question.options[index];
-        });
-
-        this.startTimer();
-
-    } catch (error) {
-        console.error(error);
-
-        questionElement.textContent =
-            "Sorry, we couldn't load the question.";
-
-        questionNumberElement.textContent = "Error";
+        const selectedButton = answerButtons[selectedIndex];
 
         answerButtons.forEach(function (button) {
             button.disabled = true;
         });
 
-        clearInterval(this.timerId);
-    }
-},
+        if (selectedIndex === question.correctAnswerIndex) {
+            selectedButton.classList.add("answer-correct");
 
-    checkAnswer: function (selectedIndex) {
-    clearInterval(this.timerId);
-
-    const questionIndex =
-        this.usedQuestions[this.usedQuestions.length - 1];
-
-    const question = questions[questionIndex];
-
-    const selectedButton = answerButtons[selectedIndex];
-
-    if (selectedIndex === question.correctAnswerIndex) {
-        selectedButton.classList.add("answer-correct");
-
-        this.score++;
-        scoreElement.textContent = this.score;
-    } else {
-        if (selectedButton) {
+            this.score++;
+            scoreElement.textContent = this.score;
+        } else {
             selectedButton.classList.add("answer-wrong");
+
+            this.lives--;
+            livesElement.textContent = "❤️".repeat(this.lives);
         }
 
-        this.lives--;
-        livesElement.textContent = "❤️".repeat(this.lives);
-    }
+        setTimeout(() => {
+            answerButtons.forEach(function (button) {
+                button.disabled = false;
+                button.classList.remove(
+                    "answer-correct",
+                    "answer-wrong"
+                );
+            });
 
-    setTimeout(() => {
-        answerButtons.forEach(function (button) {
-            button.classList.remove(
-                "answer-correct",
-                "answer-wrong"
-            );
-        });
+            if (this.lives === 0) {
+                this.gameOver();
+                return;
+            }
 
-        if (this.lives === 0) {
-            this.gameOver();
-            return;
-        }
+            if (this.usedQuestions.length === questions.length) {
+                this.win();
+                return;
+            }
 
-        if (this.usedQuestions.length === questions.length) {
-            this.win();
-            return;
-        }
-
-        this.loadQuestion();
-    }, 400);
-},
+            this.loadQuestion();
+        }, 400);
+    },
 
     gameOver: function () {
         gameScreen.classList.add("hidden");
@@ -259,10 +266,20 @@ const game = {
 
         this.timeLeft = 15;
         timerElement.textContent = this.timeLeft;
+        timerProgress.style.width = "100%";
 
         this.timerId = setInterval(() => {
             this.timeLeft--;
             timerElement.textContent = this.timeLeft;
+
+            const percentage = (this.timeLeft / 15) * 100;
+            timerProgress.style.width = percentage + "%";
+
+            if (this.timeLeft <= 5) {
+                timerProgress.classList.add("timer-warning");
+            } else {
+                timerProgress.classList.remove("timer-warning");
+            }
 
             if (this.timeLeft === 0) {
                 this.handleTimeout();
@@ -283,24 +300,26 @@ const game = {
         this.loadQuestion();
     },
     reset: function () {
-    clearInterval(this.timerId);
+        clearInterval(this.timerId);
 
-    this.score = 0;
-    this.lives = 3;
-    this.currentQuestionIndex = 0;
-    this.usedQuestions = [];
-    this.timerId = null;
-    this.timeLeft = 15;
+        this.score = 0;
+        this.lives = 3;
+        this.currentQuestionIndex = 0;
+        this.usedQuestions = [];
+        this.timerId = null;
+        this.timeLeft = 15;
 
-    scoreElement.textContent = this.score;
-    livesElement.textContent = "❤️❤️❤️";
-    timerElement.textContent = this.timeLeft;
+        scoreElement.textContent = this.score;
+        livesElement.textContent = "❤️❤️❤️";
+        timerElement.textContent = this.timeLeft;
+        timerProgress.style.width = "100%";
+        timerProgress.classList.remove("timer-warning");
 
-    endScreen.classList.add("hidden");
-    gameScreen.classList.remove("hidden");
+        endScreen.classList.add("hidden");
+        gameScreen.classList.remove("hidden");
 
-    this.loadQuestion();
-},
+        this.loadQuestion();
+    },
 };
 
 startButton.addEventListener("click", function () {
@@ -315,13 +334,5 @@ playAgainButton.addEventListener("click", function () {
     game.reset();
 });
 
-// let testTimer;
 
-// function startTestTimer() {
-//     clearInterval(testTimer);
-
-//     testTimer = setInterval(function () {
-//         console.log("tick");
-//     }, 1000);
-// }
 
