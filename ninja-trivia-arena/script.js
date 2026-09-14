@@ -134,9 +134,14 @@ const game = {
         this.loadQuestion();
     },
 
-    loadQuestion: function () {
+   loadQuestion: function () {
+    try {
+        if (!questions.length) {
+            throw new Error("No questions available.");
+        }
+
         if (this.usedQuestions.length === questions.length) {
-            console.log("All questions completed");
+            this.win();
             return;
         }
 
@@ -146,23 +151,49 @@ const game = {
             randomIndex = Math.floor(Math.random() * questions.length);
         } while (this.usedQuestions.includes(randomIndex));
 
-        this.usedQuestions.push(randomIndex);
-
         const question = questions[randomIndex];
 
+        if (
+            !question.question ||
+            !Array.isArray(question.options) ||
+            question.options.length !== 4 ||
+            typeof question.correctAnswerIndex !== "number"
+        ) {
+            throw new Error("Invalid question data.");
+        }
+
+        this.usedQuestions.push(randomIndex);
+
         questionElement.textContent = question.question;
+
         questionNumberElement.textContent =
             `Question ${this.usedQuestions.length}`;
 
         answerButtons.forEach(function (button, index) {
             button.textContent = question.options[index];
         });
+
         this.startTimer();
-    },
+
+    } catch (error) {
+        console.error(error);
+
+        questionElement.textContent =
+            "Sorry, we couldn't load the question.";
+
+        questionNumberElement.textContent = "Error";
+
+        answerButtons.forEach(function (button) {
+            button.disabled = true;
+        });
+
+        clearInterval(this.timerId);
+    }
+},
 
     checkAnswer: function (selectedIndex) {
         clearInterval(this.timerId);
-        
+
         const questionIndex =
             this.usedQuestions[this.usedQuestions.length - 1];
 
@@ -211,20 +242,51 @@ const game = {
         finalScoreElement.textContent = this.score;
     },
     startTimer: function () {
-    clearInterval(this.timerId);
+        clearInterval(this.timerId);
 
-    this.timeLeft = 15;
-    timerElement.textContent = this.timeLeft;
-
-    this.timerId = setInterval(() => {
-        this.timeLeft--;
+        this.timeLeft = 15;
         timerElement.textContent = this.timeLeft;
 
-        if (this.timeLeft === 0) {
-            clearInterval(this.timerId);
-            this.checkAnswer(-1);
+        this.timerId = setInterval(() => {
+            this.timeLeft--;
+            timerElement.textContent = this.timeLeft;
+
+            if (this.timeLeft === 0) {
+                this.handleTimeout();
+            }
+        }, 1000);
+    },
+    handleTimeout: function () {
+        clearInterval(this.timerId);
+
+        this.lives--;
+        livesElement.textContent = "❤️".repeat(this.lives);
+
+        if (this.lives === 0) {
+            this.gameOver();
+            return;
         }
-    }, 1000);
+
+        this.loadQuestion();
+    },
+    reset: function () {
+    clearInterval(this.timerId);
+
+    this.score = 0;
+    this.lives = 3;
+    this.currentQuestionIndex = 0;
+    this.usedQuestions = [];
+    this.timerId = null;
+    this.timeLeft = 15;
+
+    scoreElement.textContent = this.score;
+    livesElement.textContent = "❤️❤️❤️";
+    timerElement.textContent = this.timeLeft;
+
+    endScreen.classList.add("hidden");
+    gameScreen.classList.remove("hidden");
+
+    this.loadQuestion();
 },
 };
 
@@ -236,14 +298,17 @@ answerButtons.forEach(function (button, index) {
         game.checkAnswer(index);
     });
 });
+playAgainButton.addEventListener("click", function () {
+    game.reset();
+});
 
-let testTimer;
+// let testTimer;
 
-function startTestTimer() {
-    clearInterval(testTimer);
+// function startTestTimer() {
+//     clearInterval(testTimer);
 
-    testTimer = setInterval(function () {
-        console.log("tick");
-    }, 1000);
-}
+//     testTimer = setInterval(function () {
+//         console.log("tick");
+//     }, 1000);
+// }
 
