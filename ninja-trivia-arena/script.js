@@ -9,6 +9,11 @@ const gameScreen = document.getElementById("game-screen");
 const scoreElement = document.getElementById("score");
 const livesElement = document.getElementById("lives");
 
+const endScreen = document.getElementById("end-screen");
+const endTitle = document.getElementById("end-title");
+const endMessage = document.getElementById("end-message");
+const finalScoreElement = document.getElementById("final-score");
+
 const questions = [
     {
         question: "What does HTML stand for?",
@@ -168,7 +173,35 @@ const game = {
             console.log("Wrong!");
         }
 
+        if (this.lives === 0) {
+            this.gameOver();
+            return;
+        }
+
+        if (this.usedQuestions.length === questions.length) {
+            this.win();
+            return;
+        }
+
         this.loadQuestion();
+    },
+
+    gameOver: function () {
+        gameScreen.classList.add("hidden");
+        endScreen.classList.remove("hidden");
+
+        endTitle.textContent = "Game Over";
+        endMessage.textContent = "You ran out of lives!";
+        finalScoreElement.textContent = this.score;
+    },
+    win: function () {
+        gameScreen.classList.add("hidden");
+        endScreen.classList.remove("hidden");
+
+        endTitle.textContent = "You Win!";
+        endMessage.textContent =
+            "Amazing! You defeated every question wave!";
+        finalScoreElement.textContent = this.score;
     },
 };
 
