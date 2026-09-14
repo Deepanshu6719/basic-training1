@@ -14,6 +14,8 @@ const endTitle = document.getElementById("end-title");
 const endMessage = document.getElementById("end-message");
 const finalScoreElement = document.getElementById("final-score");
 
+const timerElement = document.getElementById("timer");
+
 const questions = [
     {
         question: "What does HTML stand for?",
@@ -122,6 +124,8 @@ const game = {
     lives: 3,
     currentQuestionIndex: 0,
     usedQuestions: [],
+    timerId: null,
+    timeLeft: 15,
 
     start: function () {
         startScreen.classList.add("hidden");
@@ -153,9 +157,12 @@ const game = {
         answerButtons.forEach(function (button, index) {
             button.textContent = question.options[index];
         });
+        this.startTimer();
     },
 
     checkAnswer: function (selectedIndex) {
+        clearInterval(this.timerId);
+        
         const questionIndex =
             this.usedQuestions[this.usedQuestions.length - 1];
 
@@ -203,6 +210,22 @@ const game = {
             "Amazing! You defeated every question wave!";
         finalScoreElement.textContent = this.score;
     },
+    startTimer: function () {
+    clearInterval(this.timerId);
+
+    this.timeLeft = 15;
+    timerElement.textContent = this.timeLeft;
+
+    this.timerId = setInterval(() => {
+        this.timeLeft--;
+        timerElement.textContent = this.timeLeft;
+
+        if (this.timeLeft === 0) {
+            clearInterval(this.timerId);
+            this.checkAnswer(-1);
+        }
+    }, 1000);
+},
 };
 
 startButton.addEventListener("click", function () {
@@ -213,3 +236,14 @@ answerButtons.forEach(function (button, index) {
         game.checkAnswer(index);
     });
 });
+
+let testTimer;
+
+function startTestTimer() {
+    clearInterval(testTimer);
+
+    testTimer = setInterval(function () {
+        console.log("tick");
+    }, 1000);
+}
+
